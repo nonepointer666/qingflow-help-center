@@ -35,6 +35,20 @@ This will:
 - build the Docusaurus site into `build/`
 - generate `.tmp/search-records.json` for Typesense indexing
 
+## GitHub Pages deployment
+
+Every update to `main` is validated, built, and deployed by
+`.github/workflows/docs-ci.yml`. The published site is available at:
+
+`https://nonepointer666.github.io/qingflow-help-center/`
+
+The workflow automatically switches Docusaurus to the repository base path during
+the Pages build. Local development and custom-domain builds continue to use `/`.
+
+In the GitHub repository, set **Settings > Pages > Build and deployment > Source**
+to **GitHub Actions** once. You can also run the workflow manually from the Actions
+page through `workflow_dispatch`.
+
 ## Search setup
 
 Copy `.env.example` into your runtime environment and provide:

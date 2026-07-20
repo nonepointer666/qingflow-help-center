@@ -7,6 +7,7 @@ const sidebars: SidebarsConfig = {
       label: '快速开始',
       items: [
         'getting-started/overview',
+        'getting-started/no-code-introduction',
         'getting-started/content-workflow',
       ],
     },

@@ -1,6 +1,7 @@
 import type {FormEvent, ReactNode} from 'react';
 import {useEffect, useState} from 'react';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
@@ -134,6 +135,7 @@ function searchLocalDocuments(query: string): SearchHit[] {
 
 export default function SearchPage(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
+  const searchPath = useBaseUrl('/search');
   const customFields = (siteConfig.customFields ?? {}) as {
     typesense?: {
       host?: string;
@@ -222,8 +224,8 @@ export default function SearchPage(): ReactNode {
 
   function updateUrl(nextQuery: string) {
     const nextUrl = nextQuery.trim()
-      ? `/search?q=${encodeURIComponent(nextQuery.trim())}`
-      : '/search';
+      ? `${searchPath}?q=${encodeURIComponent(nextQuery.trim())}`
+      : searchPath;
     window.history.replaceState({}, '', nextUrl);
   }
 

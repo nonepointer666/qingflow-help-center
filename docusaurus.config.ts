@@ -2,6 +2,14 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+const siteUrl =
+  process.env.DOCS_URL ??
+  (isGitHubPages ? 'https://nonepointer666.github.io' : 'https://help.qingflow.com');
+const baseUrl =
+  process.env.DOCS_BASE_URL ??
+  (isGitHubPages ? '/qingflow-help-center/' : '/');
+
 const config: Config = {
   title: '轻流帮助中心',
   tagline: '轻流产品使用指南、最佳实践与开发文档',
@@ -9,8 +17,8 @@ const config: Config = {
   future: {
     v4: true,
   },
-  url: 'https://help.qingflow.com',
-  baseUrl: '/',
+  url: siteUrl,
+  baseUrl,
   organizationName: 'nonepointer666',
   projectName: 'qingflow-help-center',
   onBrokenLinks: 'throw',
