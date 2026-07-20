@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "npm run build:site && npm run build:index",
+    "start": "npm run build:index && docusaurus start",
+    "build": "npm run build:index && npm run build:site",
     "build:site": "docusaurus build",
     "build:index": "node ./scripts/generate-search-records.mjs",
     "swizzle": "docusaurus swizzle",

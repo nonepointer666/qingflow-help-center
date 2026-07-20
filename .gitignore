@@ -8,6 +8,7 @@
 .docusaurus
 .cache-loader
 /.tmp
+/static/search-records.json
 
 # Misc
 .DS_Store

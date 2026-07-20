@@ -1,5 +1,5 @@
 import type {FormEvent, ReactNode} from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -95,11 +95,11 @@ const localDocuments: SearchDocument[] = [
   },
 ];
 
-function searchLocalDocuments(query: string): SearchHit[] {
+function searchLocalDocuments(query: string, documents: SearchDocument[]): SearchHit[] {
   const normalizedQuery = query.toLowerCase().replace(/\s+/g, '');
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
 
-  return localDocuments
+  return documents
     .map((document) => {
       const corpus = [
         document.title,
@@ -136,6 +136,8 @@ function searchLocalDocuments(query: string): SearchHit[] {
 export default function SearchPage(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   const searchPath = useBaseUrl('/search');
+  const searchIndexPath = useBaseUrl('/search-records.json');
+  const localIndexPromise = useRef<Promise<SearchDocument[]> | null>(null);
   const customFields = (siteConfig.customFields ?? {}) as {
     typesense?: {
       host?: string;
@@ -152,6 +154,23 @@ export default function SearchPage(): ReactNode {
   const typesense = customFields.typesense ?? {};
   const canUseTypesense = Boolean(typesense.host && typesense.searchApiKey);
 
+  function getLocalDocuments() {
+    if (!localIndexPromise.current) {
+      localIndexPromise.current = fetch(searchIndexPath)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(`Local search index responded with ${response.status}`);
+          }
+
+          const documents: unknown = await response.json();
+          return Array.isArray(documents) ? (documents as SearchDocument[]) : localDocuments;
+        })
+        .catch(() => localDocuments);
+    }
+
+    return localIndexPromise.current;
+  }
+
   async function runSearch(nextQuery: string) {
     const trimmedQuery = nextQuery.trim();
     if (!trimmedQuery) {
@@ -161,15 +180,15 @@ export default function SearchPage(): ReactNode {
       return;
     }
 
-    if (!canUseTypesense) {
-      setResults(searchLocalDocuments(trimmedQuery));
-      setState('ready');
-      setNotice('');
-      return;
-    }
-
     setState('loading');
     setNotice('');
+
+    if (!canUseTypesense) {
+      const documents = await getLocalDocuments();
+      setResults(searchLocalDocuments(trimmedQuery, documents));
+      setState('ready');
+      return;
+    }
 
     const host = typesense.host?.replace(/\/$/, '');
     const collection = typesense.collection || 'qingflow_help_docs';
@@ -210,7 +229,8 @@ export default function SearchPage(): ReactNode {
       setResults(payload.results?.[0]?.hits ?? []);
       setState('ready');
     } catch {
-      setResults(searchLocalDocuments(trimmedQuery));
+      const documents = await getLocalDocuments();
+      setResults(searchLocalDocuments(trimmedQuery, documents));
       setState('ready');
       setNotice('在线搜索暂不可用，已显示站内索引结果。');
     }

@@ -5,6 +5,7 @@ const cwd = process.cwd();
 const docsRoot = path.join(cwd, 'docs');
 const outputDir = path.join(cwd, '.tmp');
 const outputFile = path.join(outputDir, 'search-records.json');
+const publicOutputFile = path.join(cwd, 'static', 'search-records.json');
 
 async function getMarkdownFiles(dir) {
   const entries = await readdir(dir, {withFileTypes: true});
@@ -120,11 +121,19 @@ async function main() {
     });
   }
 
-  await mkdir(outputDir, {recursive: true});
-  await writeFile(outputFile, JSON.stringify(records, null, 2));
+  const serializedRecords = JSON.stringify(records, null, 2);
+
+  await Promise.all([
+    mkdir(outputDir, {recursive: true}),
+    mkdir(path.dirname(publicOutputFile), {recursive: true}),
+  ]);
+  await Promise.all([
+    writeFile(outputFile, serializedRecords),
+    writeFile(publicOutputFile, serializedRecords),
+  ]);
 
   console.log(
-    `Generated ${records.length} search records at ${path.relative(cwd, outputFile)}`,
+    `Generated ${records.length} search records at ${path.relative(cwd, outputFile)} and ${path.relative(cwd, publicOutputFile)}`,
   );
 }
 
