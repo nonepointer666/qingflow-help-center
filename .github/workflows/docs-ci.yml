@@ -75,6 +75,10 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: validate-and-build
+    env:
+      TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+      TYPESENSE_ADMIN_API_KEY: ${{ secrets.TYPESENSE_ADMIN_API_KEY }}
+      TYPESENSE_COLLECTION: ${{ secrets.TYPESENSE_COLLECTION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,9 +96,5 @@ jobs:
         run: npm run build:index
 
       - name: Push records to Typesense
-        if: ${{ secrets.TYPESENSE_HOST != '' && secrets.TYPESENSE_ADMIN_API_KEY != '' }}
-        env:
-          TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
-          TYPESENSE_ADMIN_API_KEY: ${{ secrets.TYPESENSE_ADMIN_API_KEY }}
-          TYPESENSE_COLLECTION: ${{ secrets.TYPESENSE_COLLECTION }}
+        if: ${{ env.TYPESENSE_HOST != '' && env.TYPESENSE_ADMIN_API_KEY != '' }}
         run: npm run search:push
