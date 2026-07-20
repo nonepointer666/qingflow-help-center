@@ -4,7 +4,7 @@ const sidebars: SidebarsConfig = {
   helpCenterSidebar: [
     {
       type: 'category',
-      label: 'Getting Started',
+      label: '快速开始',
       items: [
         'getting-started/overview',
         'getting-started/content-workflow',
@@ -12,7 +12,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Product Guides',
+      label: '产品指南',
       items: [
         'product-guides/end-user/navigation-and-search',
         'product-guides/workflow/approval-center',
@@ -20,7 +20,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Administration',
+      label: '管理与部署',
       items: [
         'admin/deployment-topology',
         'admin/content-governance',
@@ -33,12 +33,12 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Releases',
+      label: '更新日志',
       items: ['releases/phase-1-scope'],
     },
     {
       type: 'category',
-      label: 'Operations',
+      label: '运维手册',
       items: ['operations/search-and-release-runbook'],
     },
   ],

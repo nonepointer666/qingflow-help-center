@@ -3,16 +3,16 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Qingflow Help Center',
-  tagline: '面向客户、实施团队与开发者的统一帮助文档站',
-  favicon: 'img/favicon.ico',
+  title: '轻流帮助中心',
+  tagline: '轻流产品使用指南、最佳实践与开发文档',
+  favicon: 'img/qingflow-favicon.png',
   future: {
     v4: true,
   },
   url: 'https://help.qingflow.com',
   baseUrl: '/',
-  organizationName: 'qingflow',
-  projectName: 'help-center',
+  organizationName: 'nonepointer666',
+  projectName: 'qingflow-help-center',
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -21,7 +21,7 @@ const config: Config = {
   },
   i18n: {
     defaultLocale: 'zh-CN',
-    locales: ['zh-CN', 'en'],
+    locales: ['zh-CN'],
   },
   presets: [
     [
@@ -32,7 +32,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl:
             process.env.GITHUB_EDIT_URL ??
-            'https://github.com/qingflow/help-center/tree/main/',
+            'https://github.com/nonepointer666/qingflow-help-center/tree/main/',
           showLastUpdateTime: false,
           showLastUpdateAuthor: false,
         },
@@ -51,28 +51,24 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Qingflow Docs',
+      title: '轻流帮助中心',
       logo: {
-        alt: 'Qingflow Logo',
-        src: 'img/logo.svg',
+        alt: '轻流 Logo',
+        src: 'img/qingflow-logo.png',
       },
       items: [
         {
           type: 'docSidebar',
           sidebarId: 'helpCenterSidebar',
           position: 'left',
-          label: 'Docs',
+          label: '产品指南',
         },
         {to: '/docs/api/overview', label: 'API', position: 'left'},
-        {to: '/docs/releases/phase-1-scope', label: 'Releases', position: 'left'},
-        {to: '/search', label: 'Search', position: 'right'},
+        {to: '/docs/releases/phase-1-scope', label: '更新日志', position: 'left'},
+        {to: '/search', label: '搜索', position: 'right'},
         {
-          href: 'https://github.com/qingflow/help-center',
+          href: 'https://github.com/nonepointer666/qingflow-help-center',
           label: 'GitHub',
-          position: 'right',
-        },
-        {
-          type: 'localeDropdown',
           position: 'right',
         },
       ],
@@ -81,51 +77,51 @@ const config: Config = {
       style: 'light',
       links: [
         {
-          title: 'Product',
+          title: '产品使用',
           items: [
             {
-              label: 'Getting Started',
+              label: '快速开始',
               to: '/docs/getting-started/overview',
             },
             {
-              label: 'Workflow Guides',
+              label: '流程与审批',
               to: '/docs/product-guides/workflow/approval-center',
             },
-            {label: 'Search', to: '/search'},
+            {label: '搜索文档', to: '/search'},
           ],
         },
         {
-          title: 'Operations',
+          title: '管理与运维',
           items: [
             {
-              label: 'Deployment Topology',
+              label: '部署拓扑',
               to: '/docs/admin/deployment-topology',
             },
             {
-              label: 'Content Governance',
+              label: '内容治理',
               to: '/docs/admin/content-governance',
             },
             {
-              label: 'Search Runbook',
+              label: '搜索与发布',
               to: '/docs/operations/search-and-release-runbook',
             },
           ],
         },
         {
-          title: 'Resources',
+          title: '开发资源',
           items: [
             {
-              label: 'API Overview',
+              label: 'API 概览',
               to: '/docs/api/overview',
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/qingflow/help-center',
+              href: 'https://github.com/nonepointer666/qingflow-help-center',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Qingflow. Built with Docusaurus and prepared for self-hosted delivery.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Qingflow`,
     },
     prism: {
       theme: prismThemes.github,
@@ -135,7 +131,7 @@ const config: Config = {
   customFields: {
     repoUrl:
       process.env.GITHUB_EDIT_URL ??
-      'https://github.com/qingflow/help-center/tree/main/',
+      'https://github.com/nonepointer666/qingflow-help-center/tree/main/',
     typesense: {
       host: process.env.TYPESENSE_HOST ?? '',
       searchApiKey: process.env.TYPESENSE_SEARCH_API_KEY ?? '',
