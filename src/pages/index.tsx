@@ -1,6 +1,7 @@
 import type {FormEvent, ReactNode} from 'react';
 import {useEffect, useRef, useState} from 'react';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 import {
@@ -108,6 +109,7 @@ const popularQuestions = [
 
 function HelpSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchPath = useBaseUrl('/search');
   const [query, setQuery] = useState('');
   const normalizedQuery = query.trim().toLowerCase();
   const matchedGuides = normalizedQuery
@@ -147,7 +149,7 @@ function HelpSearch() {
 
   return (
     <div className={styles.searchShell}>
-      <form className={styles.searchBox} action="/search" onSubmit={handleSubmit}>
+      <form className={styles.searchBox} action={searchPath} onSubmit={handleSubmit}>
         <Search aria-hidden="true" size={22} strokeWidth={2} />
         <input
           ref={inputRef}
