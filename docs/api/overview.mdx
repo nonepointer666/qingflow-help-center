@@ -1,0 +1,23 @@
+---
+title: API 文档接入概览
+description: API 文档如何并入帮助中心主站。
+slug: /api/overview
+---
+
+# API 文档接入概览
+
+帮助中心不只服务终端用户，也应该覆盖开发者和实施团队。
+
+## 推荐做法
+
+- 指南类内容继续维护在 `docs/api/`
+- OpenAPI 参考文档后续通过插件或构建脚本接入
+- 搜索索引中为 API 文档单独标注 `doc_type=api`
+
+## Phase 1 先落什么
+
+- 统一站点入口
+- API 文档在导航层可见
+- 搜索索引 schema 预留 `doc_type`、`tags`、`section` 等字段
+
+这样后续接 OpenAPI 时，不需要重构站点骨架。

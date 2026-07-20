@@ -1,0 +1,35 @@
+---
+title: 内容治理约定
+description: 目录结构、版本、命名和发布的约定。
+slug: /admin/content-governance
+---
+
+# 内容治理约定
+
+## 目录建议
+
+```text
+docs/
+  getting-started/
+  product-guides/
+  admin/
+  api/
+  releases/
+  operations/
+```
+
+## 命名建议
+
+- 文件名统一使用 kebab-case
+- slug 尽量与路径一致
+- 目录先按用户任务分层，再按产品模块细分
+
+## 版本建议
+
+- 日常文档维护在 `current`
+- 产品发布时打出稳定版本
+- 历史版本只维护必要修正，不混入新特性
+
+## 多语言建议
+
+本仓库已经开启 `zh-CN / en` 语言结构，后续可用 Docusaurus i18n 命令生成翻译目录。

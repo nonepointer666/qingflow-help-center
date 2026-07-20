@@ -1,0 +1,53 @@
+---
+title: 搜索与发布 Runbook
+description: Phase 1 的构建、索引和发布链路说明。
+slug: /operations/search-and-release-runbook
+---
+
+# 搜索与发布 Runbook
+
+## 本地开发
+
+```bash
+npm install
+npm start
+```
+
+## 构建站点与索引
+
+```bash
+npm run build
+```
+
+这个命令会执行两件事：
+
+- `docusaurus build`
+- `scripts/generate-search-records.mjs`
+
+生成的搜索记录默认输出到：
+
+```text
+.tmp/search-records.json
+```
+
+## 推送到 Typesense
+
+需要先设置：
+
+```bash
+export TYPESENSE_HOST=http://localhost:8108
+export TYPESENSE_ADMIN_API_KEY=replace-me
+export TYPESENSE_COLLECTION=qingflow_help_docs
+```
+
+然后执行：
+
+```bash
+npm run search:push
+```
+
+## 发布建议
+
+- `pull_request`：只做校验和预览
+- `push main`：构建正式站点并同步索引
+- 生产环境建议使用自建 CI Runner 和国内网络出口

@@ -1,0 +1,17 @@
+{
+  "name": "qingflow_help_docs",
+  "enable_nested_fields": false,
+  "fields": [
+    {"name": "title", "type": "string"},
+    {"name": "section", "type": "string", "facet": true},
+    {"name": "content", "type": "string"},
+    {"name": "url", "type": "string", "facet": true},
+    {"name": "product", "type": "string", "facet": true},
+    {"name": "version", "type": "string", "facet": true},
+    {"name": "language", "type": "string", "facet": true},
+    {"name": "tags", "type": "string[]", "facet": true, "optional": true},
+    {"name": "updated_at", "type": "string", "optional": true},
+    {"name": "updated_at_ts", "type": "int64", "optional": true}
+  ],
+  "default_sorting_field": "updated_at_ts"
+}

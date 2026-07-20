@@ -1,0 +1,39 @@
+---
+title: 私有化部署拓扑
+description: Qingflow Help Center 的基础部署拓扑与国内可用性建议。
+slug: /admin/deployment-topology
+---
+
+# 私有化部署拓扑
+
+Phase 1 推荐把站点拆成两个核心部分：
+
+- 文档前台：Docusaurus 产出的静态站
+- 搜索服务：自建 Typesense
+
+## 建议部署方式
+
+```text
+GitHub Repo
+  -> CI / Self-hosted Runner
+  -> Static Site Build
+  -> 国内 CDN / Nginx / OSS
+  -> Typesense 索引同步
+```
+
+## 国内访问建议
+
+如果主要服务中国大陆用户，建议：
+
+- 自定义主域名并完成备案
+- 静态资源走国内 CDN
+- 搜索服务放在国内或就近机房
+- 不依赖海外托管平台的默认域名
+
+## Phase 1 不做什么
+
+- 不做复杂后台权限系统
+- 不做富文本编辑器
+- 不做多集群搜索容灾
+
+先把主路径跑通，再决定二期是否升级。

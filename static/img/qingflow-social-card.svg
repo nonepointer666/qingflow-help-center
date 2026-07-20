@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="40" fill="#0B1720"/>
+  <circle cx="1034" cy="124" r="180" fill="url(#paint0_radial_1_2)" fill-opacity="0.9"/>
+  <circle cx="146" cy="526" r="164" fill="url(#paint1_radial_1_2)" fill-opacity="0.7"/>
+  <rect x="80" y="88" width="140" height="140" rx="34" fill="url(#paint2_linear_1_2)"/>
+  <path d="M124 131H155C173.778 131 189 146.222 189 165C189 183.778 173.778 199 155 199H124V131Z" fill="white"/>
+  <path d="M152 147H179C188.389 147 196 154.611 196 164C196 173.389 188.389 181 179 181H152V147Z" fill="#0F766E"/>
+  <path d="M124 131H145V199H124V131Z" fill="#DFF6F3"/>
+  <text x="80" y="328" fill="white" font-family="Avenir Next, PingFang SC, Helvetica Neue, sans-serif" font-size="74" font-weight="700">Qingflow Help Center</text>
+  <text x="80" y="394" fill="#9ED4D0" font-family="Avenir Next, PingFang SC, Helvetica Neue, sans-serif" font-size="34">GitHub + Docusaurus + Typesense</text>
+  <text x="80" y="474" fill="#D8ECEA" font-family="Avenir Next, PingFang SC, Helvetica Neue, sans-serif" font-size="28">Phase 1: branded docs, version-ready content structure, CI validation,</text>
+  <text x="80" y="516" fill="#D8ECEA" font-family="Avenir Next, PingFang SC, Helvetica Neue, sans-serif" font-size="28">and a self-hosted search pipeline foundation for domestic deployment.</text>
+  <defs>
+    <radialGradient id="paint0_radial_1_2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1034 124) rotate(90) scale(180)">
+      <stop stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#14B8A6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="paint1_radial_1_2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(146 526) rotate(90) scale(164)">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="paint2_linear_1_2" x1="89" y1="101" x2="211" y2="218" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#11A597"/>
+      <stop offset="1" stop-color="#F57F17"/>
+    </linearGradient>
+  </defs>
+</svg>

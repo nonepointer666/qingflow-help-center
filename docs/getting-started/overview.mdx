@@ -1,0 +1,44 @@
+---
+title: 帮助中心概览
+description: Qingflow 帮助中心 Phase 1 的定位、信息架构和使用方式。
+slug: /getting-started/overview
+---
+
+# 帮助中心概览
+
+这一套帮助文档站点参考了 `Mintlify` 的体验思路，但底层完全改成可自控的 `GitHub + Docusaurus + Typesense` 体系。
+
+## Phase 1 已经覆盖什么
+
+- 品牌化首页与文档阅读体验
+- Markdown 内容结构与 GitHub 管理方式
+- 帮助中心目录、角色和版本治理约定
+- 私有化部署拓扑的基础说明
+- Typesense 搜索接入位与索引脚本骨架
+
+## 这套站点为什么适合帮助中心
+
+和传统知识库相比，这套方案更适合长期对外服务：
+
+- 文档内容就是 `Markdown / MDX` 资产
+- 前台是静态站，性能与 SEO 更稳
+- 搜索服务独立扩展，不依赖内容平台内建能力
+- 可以自然接入产品更新、API 文档、FAQ 和实施手册
+
+## 推荐的内容入口
+
+如果你是：
+
+- 新客户：先看[内容协作与发布流程](/docs/getting-started/content-workflow)
+- 终端用户：先看[帮助中心导航与搜索](/docs/product-guides/end-user/navigation-and-search)
+- 管理员或实施顾问：先看[部署拓扑](/docs/admin/deployment-topology)
+
+## 版本策略
+
+Phase 1 先以 `current` 版本交付，后续产品正式发版时，执行 Docusaurus 的版本快照命令：
+
+```bash
+npm exec docusaurus docs:version 2026-q3
+```
+
+这样可以保留历史文档，并支持新旧版本并行在线。

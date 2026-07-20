@@ -1,0 +1,34 @@
+---
+title: 内容协作与发布流程
+description: 文档如何在 GitHub 中编辑、审核、预览和发布。
+slug: /getting-started/content-workflow
+---
+
+# 内容协作与发布流程
+
+Phase 1 先使用 `docs as code` 工作流，保证内容资产和发布链路是稳定的。
+
+## 日常编辑路径
+
+1. 在 `docs/` 目录中新增或修改 Markdown 文件
+2. 提交到 GitHub 分支并创建 PR
+3. 通过 CI 完成类型检查、站点构建和搜索索引生成
+4. 审核通过后合并到 `main`
+5. 触发正式发布与搜索索引同步
+
+## 内容规范
+
+- 每篇文档都应该包含 `title`、`description`
+- 图片统一放在 `static/img/` 或文档同级资源目录
+- 一级标题只保留一个
+- slug 要稳定，避免上线后频繁改 URL
+
+## 为什么 Phase 1 不先做后台编辑器
+
+因为当前最重要的是先让内容治理稳定下来：
+
+- Markdown 是可迁移资产
+- Git 历史天然可审计
+- 版本切换与搜索索引更容易控制
+
+如果后续运营同学不想直接碰 GitHub，可以在 Phase 2 接入 `Decap CMS`。
