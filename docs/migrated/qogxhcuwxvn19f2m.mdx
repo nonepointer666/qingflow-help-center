@@ -3,7 +3,7 @@ title: "获取应用数据接口详解"
 description: "1. 问题描述在调用openAPI获取应用数据接口时，会常常遇到body中字段不清楚如何传，比如申请人信息怎么传？查询某个字段时的内容该怎么传？等等2. 文档作用会详细说明如何传值。3. 接口详解请求方式：POST请求地址：https://api.qingflow.com/app/:appke..."
 slug: "/building-guides/huo-qu-ying-yong-shu-ju-jie-kou-xiang-jie"
 source_url: "https://exiao.yuque.com/ixwxsb/bgzs0e/qogxhcuwxvn19f2m?singleDoc#"
-source_updated_at: "2025-02-18T02:51:13.000Z"
+source_updated_at: "2026-08-21T02:06:38.000Z"
 keywords:
   - "搭建技巧"
   - "按功能分类"
@@ -11,21 +11,19 @@ keywords:
   - "应用数据处理"
   - "获取应用数据接口详解"
 ---
-## 问题描述
-
+# 问题描述
 在调用openAPI获取应用数据接口时，会常常遇到body中字段不清楚如何传，比如申请人信息怎么传？查询某个字段时的内容该怎么传？等等
 
-## 文档作用
-
+# 文档作用
 会详细说明如何传值。
 
-## 接口详解
-
+# 接口详解
 **请求方式：**POST
 
-**请求地址：**https://api.qingflow.com/app/:appkey/apply/filter（公有云版本）
+**请求地址：**https://api.qingflow.com/app/<font style="color:#DF2A3F;">:appkey</font>/apply/filter（公有云版本）
 
 > 请求地址中:appkey为需要替换的变量，根据实际获取值更新，示例如下：
+>
 
 ```javascript
 POST https://api.qingflow.com/app/1fa752c0/apply/filter
@@ -43,44 +41,106 @@ POST https://api.qingflow.com/app/1fa752c0/apply/filter
 | --- | --- | --- |
 | appKey | 是 | 应用ID，获取方式见下方 |
 
-> appkey应用id，点击某应用，即可在链接地址中获取，如下图：也可以在应用基本信息中获得（下图）
 
-### 请求头（Header）
+:::color1
+### appkey
++ 应用id，点击某应用，即可在链接地址中获取，如下图：
 
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716623231601-68975cab-e1ca-4f78-af82-3e8f416f2137.png" width="634" title="" crop="0,0,1,1" id="GOySL" class="ne-image">
+
++ 也可以在应用基本信息中获得（下图）
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716623278918-d74314b1-f8a9-4047-8025-ddfccebd34b3.png" width="655" title="" crop="0,0,1,1" id="oypeC" class="ne-image">
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716623198376-4a34289a-8b99-4394-986d-53b589eb37bc.png" width="594" title="" crop="0,0,1,1" id="FhA9o" class="ne-image">
+
+:::
+
+## 请求头（Header）
 | 参数 | 必须 | 说明 |
 | --- | --- | --- |
 | accessToken | 是 | 调用接口凭证。获取方法请查看“文档” |
 | userId | 非必填 | 说明：用户的userId，type值为非8的情况下需要传输用户信息,不传不报错但是数据获取为空。 |
 
-> accessToken获取方式获取路径：【轻商城】——【插件中心】——【第三方连接】——「openapi」超级管理员accessToken：拥有工作区创建者权限，可以调用除「code登录接口」外所有openAPI接口。可直接在轻流系统中获取，如下：子管理员accessToken：子管理员accessToken拥有对应子管理员的权限，能调用这个子管理员权限内可调用的接口。获取方式为：首先生成关联子管理员权限secret（如下图），再通过接口，由wsid（下文有详解）和secret获取。重置secret会让已获取过的accessToken失效。
 
-### 请求体（Body）
+:::color1
++ <font style="color:#DF2A3F;">accessToken获取方式</font>
 
-| **参数** | **必须** | **类型** | **说明** |
+获取路径：【轻商城】——【插件中心】——【第三方连接】——「openapi」
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716622834568-2203e7ec-7935-48f5-92c9-c920c6e48df6.png" width="659" title="" crop="0,0,1,1" id="XgzeI" class="ne-image">
+
++ 超级管理员accessToken：拥有工作区创建者权限，<font style="color:#DF2A3F;">可以调用除「code登录接口」外所有openAPI接口</font>。可直接在轻流系统中获取，如下：
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716622899306-6d2482fd-5aff-43b3-8759-b5ebfdae528c.png" width="659" title="" crop="0,0,1,1" id="u7a76060d" class="ne-image">
+
++ 子管理员accessToken：子管理员accessToken拥有对应子管理员的权限，能调用这个子管理员权限内可调用的接口。
+    - 获取方式为：首先生成关联子管理员权限secret（如下图），再通过接口，由wsid（下文有详解）和secret获取。
+    - 重置secret会让已获取过的accessToken失效。
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1716623002455-6c6e4bf6-874d-416e-8e92-e65cefb006f2.png" width="473" title="" crop="0,0,1,1" id="u06849e3b" class="ne-image">
+
+:::
+
+## 请求体（Body）
+| **<font style="color:#FFFFFF;">参数</font>** | **<font style="color:#FFFFFF;">必须</font>** | **<font style="color:#FFFFFF;">类型</font>** | **<font style="color:#FFFFFF;">说明</font>** |
 | --- | --- | --- | --- |
-| pageSize | 是 | int | 每页数据条数，注意pageSize最大可填200 |
+| pageSize | 是 | int | 每页数据条数，<font style="color:#DF2A3F;">注意pageSize最大可填200</font> |
 | pageNum | 是 | int | 请求页码 |
-| type | 否 | int | 获取个人待办事项：1；获取已办事项：2；获取我发起的已通过：3；获取我发起的已拒绝：4；获取我发起的草稿：5；获取我发起的待完善：6；获取我发起的流程中：7；获取全部数据：8；（不传默认为type=8）获取抄送事项：12 |
-| sorts | 否 | \[array\] | 排序情况 |
-| queId | ​<br /> | int | 字段Id，[specialQueId可见文档](https://exiao.yuque.com/ixwxsb/cqfg2y/gpmeb799eb1hrqbz#specialQueId)，具体queId获取见下方 |
-| isAscend |  | \[boolean\] | 是否升序，true：升序 |
-| queriesRel | 否 | string | 针对字段的查询条件之间逻辑关系，目前支持and、or，默认为and。多条件查询时在queries数组中以多个对象形式存在 |
-| queries | 否 | \[array\] | 针对字段的查询条件 |
-| queId | 是 | int | 如果设置了筛选查询条件，此处为必填项，queId获取见下方 |
-| searchKey |  | string | 搜索关键字，搜索为模糊搜索 |
-| searchKeys |  | \[array\] | 数组内的字段为或条件搜索，当searchKey不为null的时候此字段会被忽略，搜索为模糊搜索 |
-| minValue |  | string | 数字模块中，是搜索结果中最小值，日期类型，就是最早日期 |
-| maxValue |  | string | 数字模块中，是搜索结果中最大值，日期类型，就是最晚日期 |
-| scope |  | int | 筛选数据范围， 1：全部，2：已填写，3：未填写 |
-| searchOptions |  | \[array\] | 单选多选中，搜索答案中包含这些选项的申请，由optionId组成 |
-| searchUserIds |  | \[array\] | 成员字段中，搜索答案中包含这些userId的申请 |
-| queryKey |  | string | 模糊搜索全部字段数据的key值 |
-| applyIds |  | \[array\] | 指定申请的applyId |
+| type | 否 | int | 获取个人待办事项：1；<br/>获取已办事项：2；<br/>获取我发起的已通过：3；<br/>获取我发起的已拒绝：10；<br/>获取我发起的草稿：5；<br/>获取我发起的待完善：6；<br/>获取我发起的流程中：7；<br/>获取全部数据：8；（不传默认为type=8）<br/>获取抄送事项：12 |
+| sorts | 否 | [array] | 排序情况 |
+| queId |  | int | 字段Id，[specialQueId可见文档](https://exiao.yuque.com/ixwxsb/cqfg2y/gpmeb799eb1hrqbz#specialQueId)，具体queId获取见下方 |
+| isAscend | | [boolean] | 是否升序，true：升序 |
+| queriesRel | 否 | string | 针对字段的查询条件之间逻辑关系，目前支持and、or，<font style="color:#DF2A3F;">默认为and</font>。多条件查询时在queries数组中以多个对象形式存在 |
+| queries | 否 | [array] | 针对字段的查询条件 |
+| queId | 是 | int | <font style="color:#DF2A3F;">如果设置了筛选查询条件，此处为必填项</font>，queId获取见下方 |
+| searchKey | | string | 搜索关键字，搜索为模糊搜索 |
+| searchKeys | | [array] | 数组内的字段为或条件搜索，当searchKey不为null的时候此字段会被忽略，搜索为模糊搜索 |
+| minValue | | string | 数字模块中，是搜索结果中最小值，日期类型，就是最早日期 |
+| maxValue | | string | 数字模块中，是搜索结果中最大值，日期类型，就是最晚日期 |
+| scope | | int | 筛选数据范围， 1：全部，2：已填写，3：未填写 |
+| searchOptions | | [array] | 单选多选中，搜索答案中包含这些选项的申请，由optionId组成 |
+| searchUserIds | | [array] | 成员字段中，搜索答案中包含这些userId的申请 |
+| queryKey | | string | 模糊搜索全部字段数据的key值 |
+| applyIds | | [array] | 指定申请的applyId |
 
-> queIdqueId获取方式方式1、通过调用获取应用表单信息接口获取应用表单信息接口方式2、通过后台开发者工具去获取，打开浏览器按Fn+12 点击network，然后清除数据safari获取方式 点击打开某条数据，然后点击该条数据的applyid,在预览中找到到该字段的queidGoogle获取方式 通过后台开发者工具去获取，打开浏览器按Fn+12，点击network，然后清除数据点击打开某条数据，然后点击该条数据的applyid,在response中找到到该字段的queid方式3、直接发起一条数据，然后在右侧的apply，右击拷贝为curl，导入到postman中
 
-### 请求体示例
+:::color1
+# queId
++ <font style="color:#DF2A3F;">queId获取方式</font>
 
+### 方式1、通过调用获取应用表单信息接口
+[获取应用表单信息接口](https://exiao.yuque.com/ixwxsb/cqfg2y/wsag40n60hzhosgp?singleDoc#%20《获取指定应用详细信息》)
+
+<img src="https://cdn.nlark.com/yuque/0/2023/png/28884377/1690775227313-9dd0ffff-2b1c-4df6-81a5-4010fb148484.png" width="947" title="" crop="0,0,1,1" id="M6t5j" class="ne-image">
+
+### 方式2、通过后台开发者工具去获取，打开浏览器按Fn+12
+      点击network，然后清除数据
+
+#### safari获取方式
+<img src="https://cdn.nlark.com/yuque/0/2023/png/28884377/1690775349546-3f2d3ccb-f88a-4b73-9cd8-b0f5a06b5b82.png" width="1316" title="" crop="0,0,1,1" id="H0boR" class="ne-image">
+
+     点击打开某条数据，然后点击该条数据的applyid,在预览中找到到该字段的queid
+
+<img src="https://cdn.nlark.com/yuque/0/2023/png/28884377/1690775455556-8b324192-cae6-4d50-8e4c-510f0f3a3af1.png" width="1305" title="" crop="0,0,1,1" id="edXdD" class="ne-image">
+
+#### Google获取方式
+ 通过后台开发者工具去获取，打开浏览器按Fn+12，点击network，然后清除数据
+
+点击打开某条数据，然后点击该条数据的applyid,在response中找到到该字段的queid
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1711697613173-ab85cab3-1d6f-4f7a-87b3-fd1b7afd73ae.png" width="1326" title="" crop="0,0,1,1" id="u4c9ea917" class="ne-image">
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1711697691374-f47674e6-845c-42b3-8fe5-a0617784e6aa.png" width="1330" title="" crop="0,0,1,1" id="ud4b952a5" class="ne-image">
+
+### 方式3、直接发起一条数据，然后在右侧的apply，右击拷贝为curl，导入到postman中
+<img src="https://cdn.nlark.com/yuque/0/2023/png/28884377/1690782397069-e42543a1-f063-43ba-b095-100cea0599a8.png" width="1311" title="" crop="0,0,1,1" id="aPckQ" class="ne-image">
+
+<img src="https://cdn.nlark.com/yuque/0/2023/png/28884377/1690782466474-ea78a622-3818-4894-acae-911265027ef7.png" width="1271" title="" crop="0,0,1,1" id="qg0mE" class="ne-image">
+
+:::
+
+## 请求体示例
 ```json
 {
     "pageSize": 50,
@@ -127,10 +187,8 @@ PS：对于地址字段、富文本字段、定位字段、数据关联字段、
 
 对于图片选择，参考多项选择的传参方式
 
-### 针对不同字段数据的请求体
-
-#### 默认获取全部应用数据
-
+## 针对不同字段数据的请求体
+### 默认获取全部应用数据
 由于是接口属于是分页接口，所以如果是手动请求，需要手动更新pageNum的值，比如由1变为2，表示，请求下一页50条数据。这里需要注意的是pageSize最大可填200。
 
 ```json
@@ -140,10 +198,9 @@ PS：对于地址字段、富文本字段、定位字段、数据关联字段、
 }
 ```
 
-​
 
-#### 获取某人发起的数据，且流程状态是已通过的
 
+### 获取某人发起的数据，且流程状态是已通过的
 这里需要注意的是Header中userId需要传对应的成员的userId，否则查询出来的数据为空。type=3表示获取我发起的已通过。
 
 ```json
@@ -154,8 +211,7 @@ PS：对于地址字段、富文本字段、定位字段、数据关联字段、
 }
 ```
 
-#### 获取全部应用数据，且按照申请时间进行升序排序
-
+### 获取全部应用数据，且按照申请时间进行升序排序
 queId=2是默认代表申请时间，一些系统字段queId都是默认的，具体可以查阅[specialQueId可见文档](https://exiao.yuque.com/ixwxsb/cqfg2y/gpmeb799eb1hrqbz#specialQueId)
 
 ```json
@@ -171,9 +227,15 @@ queId=2是默认代表申请时间，一些系统字段queId都是默认的，�
 }
 ```
 
-#### 根据数据ID查询指定数据
+### 根据数据ID查询指定数据
+:::color1
+数据ID获取方式：
 
-> 数据ID获取方式：URL页面获取：打开数据详情页，找到applyid
+URL页面获取：打开数据详情页，找到applyid
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729846117478-4f36e6ea-acbe-463a-b58d-5b7c5d5644e6.png" width="1016" title="" crop="0,0,1,1" id="u41e20201" class="ne-image">
+
+:::
 
 ```json
 {
@@ -185,8 +247,7 @@ queId=2是默认代表申请时间，一些系统字段queId都是默认的，�
 }
 ```
 
-#### 获取应用数据，获取某个字段未填写的数据
-
+### 获取应用数据，获取某个字段未填写的数据
 scope==3，代表未填写的状态
 
 ```json
@@ -202,13 +263,11 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 单行文字字段
-
-##### 获取全部应用数据某个单行文字字段包含值或者等于特定值
-
+### 单行文字字段
+#### 获取全部应用数据某个单行文字字段包含值或者等于特定值
 注意：这里是模糊搜索，如果应用数据中queId=289084275的数据中有值包含单行文字就会被查询出来，即为模糊搜素。
 
-所以如果想要精确查询，见方式三，即minValue和maxValue都为一样的值。
+所以如果想要<font style="color:#DF2A3F;">精确查询，见方式三，即minValue和maxValue都为一样的值</font>。
 
 ```json
 {
@@ -252,8 +311,9 @@ scope==3，代表未填写的状态
 }
 ```
 
-##### 获取全部应用数据某个单行文字字段包含特定值1或特定值2
 
+
+#### 获取全部应用数据某个单行文字字段包含特定值1或特定值2
 注意：虽然是或关系，但是搜索也属于是模糊搜索。
 
 ```json
@@ -290,9 +350,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-##### 获取全部应用数据某个单行文字字段等于特定值1或特定值2
-
-这里是精确搜索
+#### 获取全部应用数据某个单行文字字段等于特定值1或特定值2
+<font style="color:#DF2A3F;">这里是精确搜索</font>
 
 ```json
 {
@@ -314,12 +373,10 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 数字字段
+### 数字字段
+<font style="color:#DF2A3F;">注意：筛选时，数字字段需要body中加上"queType": 8</font>
 
-注意：筛选时，数字字段需要body中加上"queType": 8
-
-##### 获取全部应用数据数字字段等于特定值
-
+#### 获取全部应用数据数字字段等于特定值
 注意：数字字段筛选使用minValue和maxValue这两个参数。等于特定值的话，就将minValue和maxValue写为一样的即可。
 
 ```json
@@ -337,9 +394,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-##### 获取全部应用数据数字字段为一段区间值
-
-比如需要筛选数字字段queId=289084277的值，1&lt;=数字字段&lt;=111.
+#### 获取全部应用数据数字字段为一段区间值
+比如需要筛选数字字段queId=289084277的值，1<=数字字段<=111.
 
 ```json
 {
@@ -356,10 +412,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 日期字段
-
-##### 获取全部应用数据某个日期字段为特定值
-
+### 日期字段
+#### 获取全部应用数据某个日期字段为特定值
 注意：minValue和maxValue中需要将日期字段格式补齐才能进行筛选。虽然表单设置日期字段为年月日，但是接口查询需要写为年月日时分秒。筛选等于特定值，即minValue和maxValue等于相同值
 
 ```json
@@ -376,9 +430,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-##### 获取全部应用数据某个日期字段为一段区间值
-
-比如需要筛选日期字段queId=289084279的值，"2024-10-23 00:00:00"&lt;=日期字段&lt;="2024-10-24 00:00:00".即使日期字段表单设置为年月日格式，但是查询时需要将格式补齐。
+#### 获取全部应用数据某个日期字段为一段区间值
+比如需要筛选日期字段queId=289084279的值，"2024-10-23 00:00:00"<=日期字段<="2024-10-24 00:00:00".即使日期字段表单设置为年月日格式，但是查询时需要将格式补齐。
 
 ```json
 {
@@ -394,10 +447,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 起止时间
-
-##### 获取全部应用数据某个起止时间等于特定值
-
+### 起止时间
+#### 获取全部应用数据某个起止时间等于特定值
 注意：searchKey中需要将日期字段的格式补齐。虽然表单设置日期字段为年月日，但是接口查询需要写为年月日时分秒。
 
 精确搜索
@@ -415,8 +466,7 @@ scope==3，代表未填写的状态
 }
 ```
 
-##### 获取全部应用数据某个起止时间包含某个时间段的数据
-
+#### 获取全部应用数据某个起止时间包含某个时间段的数据
 比如筛选起止时间包含时间范围为2024-10-23～2024-10-25.仅仅是包含，如果一条数据的时间范围比如是2024-10-24～2024-10-31，该条数据就不会被筛选出来，因为这只能算是有交集，并不能代表包含。
 
 注意：即使日期字段表单设置为年月日格式，但是查询时需要将格式补齐。
@@ -435,17 +485,36 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 单选选择/下拉选择
-
-##### 获取全部应用数据某个单项选择/下拉选择值包含A值或者等于特定值
-
+### 单选选择/下拉选择
+#### 获取全部应用数据某个单项选择/下拉选择值包含A值或者等于特定值
 方式一：模糊搜索，单项选择/下拉选择值包含某个值
 
-方式二/方式三：精确搜索，单项选择/下拉选择值等于特定值
+方式二/方式三：<font style="color:#DF2A3F;">精确搜索</font>，单项选择/下拉选择值等于特定值
 
 关于选择类字段获取对应的选项ID方法：
 
-> 方法一：调用获取应用表单信息接口获取optId方法二：浏览器开发者工具获取F12打开控制台Safari浏览器Google浏览器
+:::color1
+方法一：[调用获取应用表单信息接口](https://exiao.yuque.com/ixwxsb/cqfg2y/wsag40n60hzhosgp?singleDoc#%20《获取指定应用表单信息》)获取optId
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729843574351-79e2005e-ae18-45bc-803f-fb3530d0da48.png" width="896" title="" crop="0,0,1,1" id="u932c57b0" class="ne-image">
+
+方法二：浏览器开发者工具获取
+
+F12打开控制台
+
++ Safari浏览器
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729843694049-9f361817-62fd-4490-b513-4580a208fdfe.png" width="1184" title="" crop="0,0,1,1" id="u1a5357f5" class="ne-image">
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729843759934-66f400e5-ec35-46b3-8f83-fe1ed9b67320.png" width="1189" title="" crop="0,0,1,1" id="u3212c2a5" class="ne-image">
+
++ Google浏览器
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729843853440-10efd95a-ceb4-4bf2-b83f-861f0705047e.png" width="1306" title="" crop="0,0,1,1" id="u29f6e132" class="ne-image">
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729843889113-44aa2c29-4069-4fae-91b5-7bddcf0b9be7.png" width="1315" title="" crop="0,0,1,1" id="u71af24db" class="ne-image">
+
+:::
 
 ```json
 {
@@ -489,10 +558,8 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 多项选择
-
-##### 获取全部应用数据某个多项选择值包含A值
-
+### 多项选择
+#### 获取全部应用数据某个多项选择值包含A值
 只有模糊搜索
 
 方式一和方式二都是筛选选择了未命名1或者未命名2的数据。
@@ -529,15 +596,20 @@ scope==3，代表未填写的状态
 }
 ```
 
-#### 成员字段
-
-##### 获取全部应用数据某个成员字段包含A值
-
+### 成员字段
+#### 获取全部应用数据某个成员字段包含A值
 只有模糊搜索
 
 成员ID获取，可以在工作区通讯录中直接获取，获取调用工作区通讯录接口。
 
-> 接口获取：获取工作区全部成员
+:::color1
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729845629932-0a1f00f8-6044-4e50-bc10-15a4a2edf7d4.png" width="1167" title="" crop="0,0,1,1" id="u6c6a7a94" class="ne-image">
+
+接口获取：[获取工作区全部成员](https://exiao.yuque.com/ixwxsb/cqfg2y/yyovulzhe33yonmf?singleDoc#%20《获取工作区全部成员》)
+
+<img src="https://cdn.nlark.com/yuque/0/2024/png/28884377/1729845710233-b8d4fbee-7bc1-4bba-8cb6-3b52f43a8caf.png" width="920" title="" crop="0,0,1,1" id="ub2b824d5" class="ne-image">
+
+:::
 
 ```json
 {
@@ -555,3 +627,21 @@ scope==3，代表未填写的状态
     ]
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

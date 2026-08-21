@@ -3,7 +3,7 @@ title: "获取应用数据"
 description: "获取轻流系统中指定应用的数据。1. 权限说明「超级管理员accessToken」和「权限组accessToken」都可以调用，「权限组accessToken」须具有该应用的权限，以及数据管理的权限。2. 请求请求方式：POST请求地址：https://api.qingflow.com/app/..."
 slug: "/product-guides/qing-code/huo-qu-ying-yong-shu-ju"
 source_url: "https://exiao.yuque.com/ixwxsb/bgzs0e/nkrtwkdwxgxsx73e?singleDoc#"
-source_updated_at: "2026-07-16T09:59:17.000Z"
+source_updated_at: "2026-08-21T02:03:20.000Z"
 keywords:
   - "帮助文档"
   - "轻代码"
@@ -16,17 +16,16 @@ keywords:
 
 ---
 
-### **权限说明**
-
+## **权限说明**
 「超级管理员accessToken」和「权限组accessToken」都可以调用，「权限组accessToken」须具有该应用的权限，以及数据管理的权限。
 
-### 请求
-
+## 请求
 **请求方式：**POST
 
 **请求地址：**https://api.qingflow.com/app/:appkey/apply/filter（公有云版本）
 
 > 请求地址中:appkey为需要替换的变量，根据实际获取值更新，示例如下：
+>
 
 ```javascript
 POST https://api.qingflow.com/app/1fa752c0/apply/filter
@@ -38,43 +37,43 @@ POST https://api.qingflow.com/app/1fa752c0/apply/filter
 
 专有轻流：http(s)://xxx.xx(自有域名)/openApi/app/:appkey/apply/filter
 
-#### **2.1 参数说明(路径参数)**
-
+### **2.1 参数说明(路径参数)**
 | 参数 | 必须 | 说明 |
 | --- | --- | --- |
 | appKey | 是 | 应用ID，获取方式参考：基本概念介绍——appKey |
 
-#### **2.2 请求头（Header）**
 
+### **2.2 请求头（Header）**
 | 参数 | 必须 | 说明 |
 | --- | --- | --- |
 | accessToken | 是 | 调用接口凭证。获取方法请查看“文档” |
 | userId | 非必填 | 说明：用户的userId，type值为非8的情况下需要传输用户信息 |
 
-#### **2.3 请求体（Body）**
 
+### **2.3 请求体（Body）**
 | 参数 | 必须 | 类型 | 说明 |
 | --- | --- | --- | --- |
 | pageSize | 是 | int | 每页数据条数 |
 | pageNum | 是 | int | 请求页码 |
-| sorts |  | \[array\] | 排序情况 |
-| queId |  | int | 字段Id，specialQueId可见文档 |
-| isAscend |  | \[boolean\] | 是否升序，true：升序 |
-| queriesRel |  | string | 针对字段的查询条件之间逻辑关系，目前支持and、or，默认为and。多条件查询时在queries数组中以多个对象形式存在 |
-| queries |  | \[array\] | 针对字段的查询条件 |
+| type |  | int | 获取个人待办事项：1；获取已办事项：2；获取我发起的已通过：3；获取我发起的已拒绝：10；获取我发起的草稿：5；获取我发起的待完善：6；获取我发起的流程中：7；获取全部数据：8；获取抄送事项：12 |
+| sorts | | [array] | 排序情况 |
+| queId | | int | 字段Id，specialQueId可见文档 |
+| isAscend | | [boolean] | 是否升序，true：升序 |
+| queriesRel | | string | 针对字段的查询条件之间逻辑关系，目前支持and、or，默认为and。多条件查询时在queries数组中以多个对象形式存在 |
+| queries | | [array] | 针对字段的查询条件 |
 | queId | 是 | int | 如果设置了筛选查询条件，此处为必填项，specialQueId可见文档 |
-| searchKey |  | string | 搜索关键字 |
-| searchKeys |  | \[array\] | 数组内的字段为或条件搜索，当searchKey不为null的时候此字段会被忽略 |
-| minValue |  | string | 数字模块中，是搜索结果中最小值；日期类型，就是最早日期（仅填写年月日信息系统会自动补齐00：00：00） |
-| maxValue |  | string | 数字模块中，是搜索结果中最大值；日期类型，就是最晚日期（仅填写年月日信息系统会自动补齐00：00：00，若需包含当天所有数据，需将最晚日期设为年-月-日 23:59:59） |
-| scope |  | int | 筛选数据范围， 1：全部，2：已填写，3：未填写 |
-| searchOptions |  | \[array\] | 单选多选中，搜索答案中包含这些选项的申请，由optionId组成 |
-| searchUserIds |  | \[array\] | 成员字段中，搜索答案中包含这些userId的申请 |
-| queryKey |  | string | 模糊搜索全部字段数据的key值 |
-| applyIds |  | \[array\] | 指定申请的applyId |
+| searchKey | | string | 搜索关键字 |
+| searchKeys | | [array] | 数组内的字段为或条件搜索，当searchKey不为null的时候此字段会被忽略 |
+| minValue | | string | 数字模块中，是搜索结果中最小值；日期类型，就是最早日期（仅填写年月日信息系统会自动补齐00：00：00） |
+| maxValue | | string | 数字模块中，是搜索结果中最大值；日期类型，就是最晚日期（仅填写年月日信息系统会自动补齐00：00：00，若需包含当天所有数据，需将最晚日期设为年-月-日 23:59:59） |
+| scope | | int | 筛选数据范围， 1：全部，2：已填写，3：未填写 |
+| searchOptions | | [array] | 单选多选中，搜索答案中包含这些选项的申请，由optionId组成 |
+| searchUserIds | | [array] | 成员字段中，搜索答案中包含这些userId的申请 |
+| queryKey | | string | 模糊搜索全部字段数据的key值 |
+| applyIds | | [array] | 指定申请的applyId |
 
-#### **2.4 请求体示例**
 
+### **2.4 请求体示例**
 ```json
 {
 	"pageSize": 50,
@@ -113,35 +112,33 @@ POST https://api.qingflow.com/app/1fa752c0/apply/filter
 }
 ```
 
-### 返回
-
-#### 3.1 返回体
-
+## 返回
+### 3.1 返回体
 | 参数 | 必须 | 类型 | 说明 |
 | --- | --- | --- | --- |
 | errCode | 是 | string | 错误码，非0表示失败 |
 | errMsg | 是 | string | 错误描述 |
-| questionRelations |  |  | 关联的设置，这里没用 |
+| questionRelations | | | 关联的设置，这里没用 |
 | result | 是 | object | 返回结果 |
 | pageAmount | 是 | int | 页数 |
 | pageNum | 是 | int | 起始页码 |
 | pageSize | 是 | int | 每页数量 |
 | resultAmount | 是 | int | 结果总数 |
-| result | 是 | array |  |
-| answers | 是 | array |  |
+| result | 是 | array | |
+| answers | 是 | array | |
 | queId | 是 | int | 字段Id.必填，specialQueId可见文档 |
 | queTitle | 是 | string | 字段标题 |
 | queType | 是 | int | 字段类型。queType可见文档1、描述文字；2、单行文字；3、多行文字；4、日期时间；5、成员字段；6、邮箱；7、手机；8、数字；9、链接；10、单项选择；11、下拉选择；12、多项选择；13、上传附件；14、起止时间；15、图片选择；16、富文本；17、定位字段；18、表格；19、数据关联；20、Q-Linker；21、地址字段；22、部门字段； |
-| tableValues | 是 | array | \[\["$ref:answerDetail"\]\] 表格类型字段必填 |
+| tableValues | 是 | array | [["$ref:answerDetail"]]  表格类型字段必填 |
 | values | 是 | array | 表格字段以外的字段类型必填 |
-| value |  | string | 问题的结果值 |
-| otherInfo |  | string | 问题结果的其他信息,上传文件这里是文件名,选择类的其他选项这里是其他选项填写的内容 |
-| id |  | int | 选择类型，为optId，成员类型，为uid；成员字段 ，当前用户: -1；地址字段，1-4：省、市、区、详细地址 |
+| value | | string | 问题的结果值 |
+| otherInfo | | string | 问题结果的其他信息,上传文件这里是文件名,选择类的其他选项这里是其他选项填写的内容 |
+| id | | int | 选择类型，为optId，成员类型，为uid；成员字段 ，当前用户: -1；地址字段，1-4：省、市、区、详细地址 |
 | applyId | 是 | string | 这条数据的id |
-| applyBaseInfo |  | string | 一条数据的基础信息，调用开放接口时不会赋值 |
+| applyBaseInfo | | string | 一条数据的基础信息，调用开放接口时不会赋值 |
 
-#### 3.2 返回体示例
 
+### 3.2 返回体示例
 ```json
 {
     "errCode": 0,

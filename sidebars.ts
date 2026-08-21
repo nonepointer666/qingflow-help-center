@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
                 "id": "migrated/rphk9kdbczxrixk1"
               },
               "items": [
+                "migrated/iip5qw68k8asha9h",
                 "migrated/wn5gs7ggbnhm0gax",
                 "migrated/uc6hd5qc9a6lzo7o",
                 "migrated/fqgqp43shks7x58z",
@@ -121,6 +122,7 @@ const sidebars: SidebarsConfig = {
                 "id": "migrated/yba84r6r8ydw58xx"
               },
               "items": [
+                "migrated/glylgqrhicqcm5qp",
                 "migrated/nnidg68rxb3ubysi",
                 "migrated/vv258g44p8z6huar",
                 "migrated/umqrytwvokghgmg9",
@@ -1874,7 +1876,19 @@ const sidebars: SidebarsConfig = {
             "type": "doc",
             "id": "migrated/bduifk8xokipcu3f"
           },
-          "items": [
+             "items": [
+        "migrated/bughr2zg3zpex2tx",
+        {
+          "type": "category",
+          "label": "QingBuilder",
+              "items": [
+                "migrated/dkmqpe03ack8uoug",
+                "migrated/ufb96lyl072o23fq",
+                "migrated/uc3wcyvgsd45x8iy"
+              ]
+            },
+            "migrated/zkaf2n0me0qs1yzu",
+            "migrated/ioiiffougpi9c55c",
             "migrated/sigv97ziqu57969r",
             {
               "type": "category",
