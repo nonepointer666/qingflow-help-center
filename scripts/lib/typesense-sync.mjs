@@ -3,14 +3,9 @@ import {createHash} from 'node:crypto';
 const safeDocumentIdPattern = /^[A-Za-z0-9_-]+$/;
 const safeCollectionNamePattern = /^[A-Za-z0-9_-]+$/;
 const deleteBatchSize = 100;
+const managedSynonymPrefix = 'qingflow-';
 
-export function getTypesenseSynonymSetName(collection) {
-  const value = String(collection ?? '').trim();
-  if (!value) throw new Error('TYPESENSE_COLLECTION must not be empty.');
-  return `${value}-synonyms`;
-}
-
-export function buildCollectionSchema(collection, {synonymSetName} = {}) {
+export function buildCollectionSchema(collection) {
   return {
     name: collection,
     enable_nested_fields: false,
@@ -34,7 +29,6 @@ export function buildCollectionSchema(collection, {synonymSetName} = {}) {
       {name: 'updated_at_ts', type: 'int64'},
     ],
     default_sorting_field: 'updated_at_ts',
-    ...(synonymSetName ? {synonym_sets: [synonymSetName]} : {}),
   };
 }
 
@@ -73,8 +67,8 @@ function requestHeaders(apiKey, contentType) {
   };
 }
 
-function synonymSetUrl(host, name) {
-  return `${host}/synonym_sets/${encodeURIComponent(name)}`;
+function synonymItemUrl(host, collection, id) {
+  return collectionUrl(host, collection, `/synonyms/${encodeURIComponent(id)}`);
 }
 
 function aliasUrl(host, alias) {
@@ -97,7 +91,7 @@ export function buildTypesenseSynonyms(groups) {
     if (seen.has(key)) return [];
     seen.add(key);
     const digest = createHash('sha256').update(key).digest('hex').slice(0, 16);
-    return [{id: `qingflow-${digest}`, synonyms}];
+    return [{id: `${managedSynonymPrefix}${digest}`, synonyms}];
   });
 }
 
@@ -202,61 +196,61 @@ export async function ensureTypesenseSynonyms({
   fetchImpl = fetch,
   logger = console,
 }) {
-  const synonymSetName = getTypesenseSynonymSetName(collection);
   const desired = buildTypesenseSynonyms(synonymGroups);
-  const listResponse = await fetchImpl(synonymSetUrl(host, synonymSetName), {
+  const listResponse = await fetchImpl(collectionUrl(host, collection, '/synonyms'), {
     headers: requestHeaders(apiKey),
   });
   if (!listResponse.ok && listResponse.status !== 404) {
     throw new Error(
-      `Failed to retrieve Typesense synonym set: ${listResponse.status}${await responseDetails(listResponse)}`,
+      `Failed to retrieve Typesense synonyms: ${listResponse.status}${await responseDetails(listResponse)}`,
     );
   }
 
-  const existingSet = listResponse.status === 404 ? undefined : await listResponse.json();
-  const existing = Array.isArray(existingSet?.items)
-    ? existingSet.items.filter((item) => typeof item?.id === 'string')
+  const listed = listResponse.status === 404 ? {synonyms: []} : await listResponse.json();
+  const existing = Array.isArray(listed?.synonyms)
+    ? listed.synonyms.filter((item) => typeof item?.id === 'string')
     : [];
-  const normalizeItems = (items) => items
-    .map((item) => ({id: String(item.id), synonyms: normalizeSynonymTerms(item.synonyms)}))
-    .sort((left, right) => left.id.localeCompare(right.id));
-  const changed = JSON.stringify(normalizeItems(existing)) !== JSON.stringify(normalizeItems(desired));
+  const existingTerms = new Map(
+    existing.map((item) => [item.id, normalizeSynonymTerms(item.synonyms)]),
+  );
 
-  if (changed || listResponse.status === 404) {
-    const response = await fetchImpl(synonymSetUrl(host, synonymSetName), {
+  let upserted = 0;
+  for (const item of desired) {
+    const current = existingTerms.get(item.id);
+    if (current && JSON.stringify(current) === JSON.stringify(item.synonyms)) continue;
+    const response = await fetchImpl(synonymItemUrl(host, collection, item.id), {
       method: 'PUT',
       headers: requestHeaders(apiKey, 'application/json'),
-      body: JSON.stringify({items: desired}),
+      body: JSON.stringify({synonyms: item.synonyms}),
     });
     if (!response.ok) {
       throw new Error(
-        `Failed to upsert Typesense synonym set: ${response.status}${await responseDetails(response)}`,
+        `Failed to upsert Typesense synonym ${item.id}: ${response.status}${await responseDetails(response)}`,
+      );
+    }
+    upserted += 1;
+  }
+
+  const desiredIds = new Set(desired.map((item) => item.id));
+  const stale = existing.filter(
+    (item) => item.id.startsWith(managedSynonymPrefix) && !desiredIds.has(item.id),
+  );
+  for (const item of stale) {
+    const response = await fetchImpl(synonymItemUrl(host, collection, item.id), {
+      method: 'DELETE',
+      headers: requestHeaders(apiKey),
+    });
+    if (!response.ok && response.status !== 404) {
+      throw new Error(
+        `Failed to delete Typesense synonym ${item.id}: ${response.status}${await responseDetails(response)}`,
       );
     }
   }
 
-  const collectionResponse = await fetchImpl(collectionUrl(host, collection), {
-    method: 'PATCH',
-    headers: requestHeaders(apiKey, 'application/json'),
-    body: JSON.stringify({synonym_sets: [synonymSetName]}),
-  });
-  if (!collectionResponse.ok) {
-    throw new Error(
-      `Failed to link Typesense synonym set: ${collectionResponse.status}${await responseDetails(collectionResponse)}`,
-    );
+  if (upserted > 0 || stale.length > 0) {
+    logger.log(`Synchronized ${desired.length} Typesense synonyms in ${collection}`);
   }
-
-  const deleted = existing.filter(
-    (item) => !desired.some((candidate) => candidate.id === item.id),
-  ).length;
-  const changedCount = changed || listResponse.status === 404 ? 1 : 0;
-  if (changedCount > 0) logger.log(`Synchronized ${desired.length} Typesense synonyms in ${collection}`);
-  return {
-    setName: synonymSetName,
-    synchronized: desired.length,
-    changed: changedCount,
-    deleted,
-  };
+  return {synchronized: desired.length, upserted, deleted: stale.length};
 }
 
 export async function importTypesenseDocuments({

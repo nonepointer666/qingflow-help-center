@@ -20,6 +20,5 @@
     {"name": "updated_at", "type": "string", "optional": true},
     {"name": "updated_at_ts", "type": "int64"}
   ],
-  "default_sorting_field": "updated_at_ts",
-  "synonym_sets": ["qingflow_help_docs-synonyms"]
+  "default_sorting_field": "updated_at_ts"
 }

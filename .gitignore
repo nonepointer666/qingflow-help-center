@@ -18,6 +18,7 @@
 
 # Misc
 .DS_Store
+.idea/
 .env.local
 .env
 .env.development.local

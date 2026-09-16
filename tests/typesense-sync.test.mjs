@@ -6,7 +6,6 @@ import {
   buildTypesenseSynonyms,
   ensureTypesenseSynonyms,
   getTypesenseAlias,
-  getTypesenseSynonymSetName,
   restoreTypesenseAlias,
   setTypesenseAlias,
   syncTypesense,
@@ -239,23 +238,23 @@ test('Typesense synonyms are reconciled through the native collection API', asyn
   const requests = [];
   const groups = [{terms: ['数据导入', '批量导入']}, {terms: ['旧词', '旧别名']}];
   const desired = buildTypesenseSynonyms(groups);
-  const staleId = 'stale-rule';
-  const setName = getTypesenseSynonymSetName(collection);
+  const staleId = 'qingflow-stale-rule';
   const fetchImpl = async (url, options = {}) => {
     requests.push({url, options});
-    if (url === `${host}/synonym_sets/${setName}` && !options.method) {
-      return jsonResponse({name: setName, items: [
-        {id: desired[0].id, synonyms: ['导入数据', '数据导入']},
+    const method = options.method ?? 'GET';
+    if (url === `${host}/collections/${collection}/synonyms` && method === 'GET') {
+      return jsonResponse({synonyms: [
+        {id: desired[1].id, synonyms: desired[1].synonyms},
         {id: staleId, synonyms: ['旧词', '旧别名']},
       ]});
     }
-    if (url === `${host}/synonym_sets/${setName}` && options.method === 'PUT') {
-      return jsonResponse({name: setName}, 200);
+    if (url === `${host}/collections/${collection}/synonyms/${desired[0].id}` && method === 'PUT') {
+      return jsonResponse({id: desired[0].id, synonyms: desired[0].synonyms});
     }
-    if (url === `${host}/collections/${collection}` && options.method === 'PATCH') {
-      return jsonResponse({}, 200);
+    if (url === `${host}/collections/${collection}/synonyms/${staleId}` && method === 'DELETE') {
+      return jsonResponse({id: staleId});
     }
-    throw new Error(`Unexpected request: ${options.method ?? 'GET'} ${url}`);
+    throw new Error(`Unexpected request: ${method} ${url}`);
   };
 
   const result = await ensureTypesenseSynonyms({
@@ -267,10 +266,9 @@ test('Typesense synonyms are reconciled through the native collection API', asyn
     logger: {log() {}},
   });
 
-  assert.deepEqual(result, {setName, synchronized: 2, changed: 1, deleted: 1});
+  assert.deepEqual(result, {synchronized: 2, upserted: 1, deleted: 1});
   assert.equal(requests[0].options.headers['X-TYPESENSE-API-KEY'], apiKey);
-  assert.equal(JSON.parse(requests[1].options.body).items.length, 2);
   assert.equal(requests[1].options.method, 'PUT');
-  assert.equal(requests[2].options.method, 'PATCH');
-  assert.deepEqual(JSON.parse(requests[2].options.body), {synonym_sets: [setName]});
+  assert.deepEqual(JSON.parse(requests[1].options.body), {synonyms: desired[0].synonyms});
+  assert.equal(requests[2].options.method, 'DELETE');
 });
