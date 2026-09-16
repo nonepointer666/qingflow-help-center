@@ -9,6 +9,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import path from 'node:path';
+import {OUTLINE_PAGE_TYPES} from './document-page-type.mjs';
 
 export const DEFAULT_OUTLINE_URL = 'https://outline.qingflow.com';
 export const DEFAULT_OUTLINE_COLLECTION = '售后知识库(公开)';
@@ -942,6 +943,122 @@ function plainText(markdown) {
     .trim();
 }
 
+function normalizeSiteRoute(value) {
+  const route = String(value ?? '')
+    .trim()
+    .split(/[?#]/, 1)[0]
+    .replace(/\/+$/, '');
+  return route.startsWith('/') ? route.toLowerCase() : '';
+}
+
+function markdownLinkTargets(line) {
+  return [...String(line).matchAll(/(?<!!)\[[^\]\n]*\]\(\s*<?([^\s)>]+)>?(?:\s+["'][^"']*["'])?\s*\)/g)]
+    .map((match) => normalizeSiteRoute(match[1]))
+    .filter(Boolean);
+}
+
+function stripNavigationOnlyContent(markdown, descendantRoutes) {
+  const routes = new Set([...descendantRoutes].map(normalizeSiteRoute).filter(Boolean));
+  if (routes.size === 0) return String(markdown).trim();
+
+  let codeFence;
+  const entries = String(markdown)
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => {
+      const fence = line.match(/^\s*(`{3,}|~{3,})/);
+      if (fence) {
+        codeFence = codeFence
+          ? undefined
+          : {marker: fence[1][0], length: fence[1].length};
+        return {line, removedNavigation: false};
+      }
+      if (codeFence) return {line, removedNavigation: false};
+
+      const targets = markdownLinkTargets(line);
+      if (targets.length === 0 || targets.some((target) => !routes.has(target))) {
+        return {line, removedNavigation: false};
+      }
+      const remainder = line
+        .replace(/(?<!!)\[[^\]\n]*\]\(\s*<?[^\s)>]+>?(?:\s+["'][^"']*["'])?\s*\)/g, '')
+        .replace(/^\s*(?:[-+*]|\d+[.)])\s*/, '')
+        .replace(/[\s,，、;；:：。.!！?？()（）\[\]【】]+/g, '');
+      if (remainder) return {line, removedNavigation: false};
+      return {line: '', removedNavigation: true};
+    });
+
+  for (let index = 0; index < entries.length; index += 1) {
+    const heading = entries[index].line.match(/^\s{0,3}(#{1,6})\s+/);
+    if (!heading) continue;
+    let removedNavigation = false;
+    let hasContent = false;
+    for (let cursor = index + 1; cursor < entries.length; cursor += 1) {
+      const nextHeading = entries[cursor].line.match(/^\s{0,3}(#{1,6})\s+/);
+      if (nextHeading && nextHeading[1].length <= heading[1].length) break;
+      removedNavigation ||= entries[cursor].removedNavigation;
+      hasContent ||= Boolean(entries[cursor].line.trim());
+    }
+    if (removedNavigation && !hasContent) entries[index].line = '';
+  }
+
+  return entries
+    .map(({line}) => line)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function meaningfulTextLength(value) {
+  return Array.from(String(value).matchAll(/[\p{Letter}\p{Number}]/gu)).length;
+}
+
+/**
+ * Classify content independently from the Outline navigation tree. Links whose
+ * only purpose is to point at descendants are removed before evaluating the
+ * body, so a parent can be a directory even when Outline exports link bullets.
+ */
+export function classifyOutlineDocument(markdown, {hasChildren = false, descendantRoutes = []} = {}) {
+  const contentMarkdown = stripNavigationOnlyContent(markdown, descendantRoutes);
+  const codeBlocks = [...contentMarkdown.matchAll(/(?:```|~~~)[^\n]*\n([\s\S]*?)(?:```|~~~)/g)];
+  const hasCodeBlock = codeBlocks.some((match) => meaningfulTextLength(match[1]) > 0);
+  const withoutCode = contentMarkdown.replace(/(?:```|~~~)[\s\S]*?(?:```|~~~)/g, ' ');
+  const contentLines = withoutCode
+    .split('\n')
+    .filter((line) => !/^\s{0,3}#{1,6}\s+/.test(line))
+    .filter((line) => !/^\s*(?:---+|\*\*\*+|___+)\s*$/.test(line));
+  const hasTable = contentLines.some((line, index) =>
+    /\|/.test(line) && /^\s*\|?\s*:?-{3,}/.test(contentLines[index + 1] ?? ''),
+  );
+  const hasReferenceLink = /(?<!!)\[[^\]\n]+\]\(\s*<?[^\s)>]+>?/.test(withoutCode);
+  const hasNonNavigationList = contentLines.some(
+    (line) =>
+      /^\s*(?:[-+*]|\d+[.)])\s+/.test(line) &&
+      meaningfulTextLength(plainText(line)) > 0,
+  );
+  const evidence = contentLines
+    .join('\n')
+    .replace(/<video\b[\s\S]*?<\/video>/gi, ' ')
+    .replace(/<(?:img|source|track)\b[^>]*\/?\s*>/gi, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ');
+  const effectiveText = plainText(evidence);
+  const substantialLine = contentLines.some((line) => {
+    const normalized = plainText(line.replace(/^\s*(?:[-+*]|\d+[.)])\s*/, ''));
+    return meaningfulTextLength(normalized) >= 12;
+  });
+  const hasMeaningfulContent =
+    meaningfulTextLength(effectiveText) >= 30 ||
+    substantialLine ||
+    hasCodeBlock ||
+    hasTable ||
+    hasReferenceLink ||
+    hasNonNavigationList;
+  const pageType = hasMeaningfulContent
+    ? (hasChildren ? 'hybrid' : 'content')
+    : (hasChildren ? 'directory' : 'empty');
+
+  return {contentMarkdown, effectiveText, hasMeaningfulContent, pageType};
+}
+
 function replaceUnpairedSurrogates(value) {
   return String(value).replace(
     /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,
@@ -1022,16 +1139,28 @@ export function serializeGeneratedDocument(document, markdown, baseUrl) {
     normalizeOutlineUrl(baseUrl),
   );
   const navigationPath = (document.parents ?? []).filter(Boolean);
+  const pageType = document.pageType ?? 'content';
+  const hasMeaningfulContent = document.hasMeaningfulContent ?? true;
+  const childDocuments = document.outlineChildren ?? [];
+  const description = createDescription(markdown) ||
+    (pageType === 'directory'
+      ? `本章节包含 ${childDocuments.length} 篇文档。`
+      : '该文档暂无正文内容。');
   return [
     '---',
     `title: ${JSON.stringify(document.title)}`,
-    `description: ${JSON.stringify(createDescription(markdown))}`,
+    `description: ${JSON.stringify(description)}`,
     `slug: ${JSON.stringify(document.slug)}`,
     'source: "outline"',
     `source_url: ${JSON.stringify(sourceUrl)}`,
     `source_updated_at: ${JSON.stringify(document.updatedAt ?? '')}`,
     `outline_id: ${JSON.stringify(document.id)}`,
     `outline_url_id: ${JSON.stringify(document.urlId)}`,
+    `page_type: ${JSON.stringify(pageType)}`,
+    `has_meaningful_content: ${hasMeaningfulContent}`,
+    ...(childDocuments.length > 0
+      ? [`outline_children: ${JSON.stringify(childDocuments)}`]
+      : []),
     ...(navigationPath.length > 0
       ? [
           'navigation_path:',
@@ -1157,6 +1286,25 @@ async function mapConcurrent(items, worker, concurrency = 8) {
   return results;
 }
 
+function buildOutlineTreeMetadata(tree) {
+  const metadata = new Map();
+  function visit(node) {
+    const children = Array.isArray(node.children) ? node.children : [];
+    const descendantIds = children.flatMap((child) => visit(child));
+    metadata.set(String(node.id), {
+      childIds: children.map((child) => String(child.id)),
+      descendantIds,
+    });
+    return [String(node.id), ...descendantIds];
+  }
+  for (const node of tree) visit(node);
+  return metadata;
+}
+
+function documentSiteUrl(document) {
+  return `/docs${document.slug}`.replace(/\/+$/, '');
+}
+
 export async function generateOutlineOutput({
   cwd,
   snapshot,
@@ -1179,7 +1327,7 @@ export async function generateOutlineOutput({
   const stagedReport = path.join(stageRoot, 'outline-sync-report.json');
   await mkdir(stagedDocs, {recursive: true});
   try {
-    const outputs = await mapConcurrent(assignedDocuments, async (document) => {
+    const rewrittenDocuments = await mapConcurrent(assignedDocuments, async (document) => {
       const markdown = rewriteMarkdownUrls(
         document.text,
         assignedDocuments,
@@ -1199,11 +1347,63 @@ export async function generateOutlineOutput({
           `Outline document ${document.id} contains invalid MDX: ${error.message}`,
         );
       }
+      return {document, markdown};
+    });
+
+    const documentsById = new Map(
+      rewrittenDocuments.map(({document}) => [String(document.id), document]),
+    );
+    const treeMetadata = buildOutlineTreeMetadata(snapshot.tree);
+    const classifications = new Map(
+      rewrittenDocuments.map(({document, markdown}) => {
+        const metadata = treeMetadata.get(String(document.id)) ?? {
+          childIds: [],
+          descendantIds: [],
+        };
+        const descendantRoutes = metadata.descendantIds
+          .map((id) => documentsById.get(id))
+          .filter(Boolean)
+          .map(documentSiteUrl);
+        return [
+          String(document.id),
+          classifyOutlineDocument(markdown, {
+            hasChildren: metadata.childIds.length > 0,
+            descendantRoutes,
+          }),
+        ];
+      }),
+    );
+    const generatedDocuments = rewrittenDocuments.map(({document}) => {
+      const metadata = treeMetadata.get(String(document.id)) ?? {childIds: []};
+      const classification = classifications.get(String(document.id));
+      const outlineChildren = metadata.childIds.map((id) => {
+        const child = documentsById.get(id);
+        const childMetadata = treeMetadata.get(id) ?? {childIds: []};
+        const childClassification = classifications.get(id);
+        if (!child || !childClassification) {
+          throw new Error(`Outline navigation references an unknown child document: ${id}`);
+        }
+        const childDescription = createDescription(childClassification.contentMarkdown, 120) ||
+          (childMetadata.childIds.length > 0
+            ? `包含 ${childMetadata.childIds.length} 篇子文档。`
+            : '暂无正文内容。');
+        return {
+          title: child.title,
+          url: `${documentSiteUrl(child)}/`,
+          description: childDescription,
+          pageType: childClassification.pageType,
+        };
+      });
       return {
-        id: document.id,
-        output: serializeGeneratedDocument(document, markdown, baseUrl),
+        ...document,
+        ...classification,
+        outlineChildren,
       };
     });
+    const outputs = generatedDocuments.map((document) => ({
+      id: document.id,
+      output: serializeGeneratedDocument(document, document.contentMarkdown, baseUrl),
+    }));
 
     for (const {id, output} of outputs) {
       await writeFileImpl(path.join(stagedDocs, `${String(id).toLowerCase()}.mdx`), output);
@@ -1217,6 +1417,12 @@ export async function generateOutlineOutput({
         ['outline-url-id'].map((source) => [
           source,
           assignedDocuments.filter((document) => document.routeSource === source).length,
+        ]),
+      ),
+      pageTypes: Object.fromEntries(
+        OUTLINE_PAGE_TYPES.map((pageType) => [
+          pageType,
+          generatedDocuments.filter((document) => document.pageType === pageType).length,
         ]),
       ),
       media: 'remote',
