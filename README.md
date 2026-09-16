@@ -75,6 +75,14 @@ a permanent `noindex` retirement page. If an active compatibility target
 disappears, synchronization fails before replacing the previous generated
 snapshot so the record must be explicitly changed to `redirect` or `deleted`.
 
+Navigation hierarchy and page content are classified independently during
+synchronization. Pages with meaningful body content are emitted as `content`
+or `hybrid`; parents containing only links to descendants become `directory`
+pages; blank leaves become `empty` pages. Directory and hybrid pages render
+their direct children as a chapter index, while only `content` and `hybrid`
+pages are included in Typesense and the generated AI document indexes. The
+classification summary is written to `.tmp/outline-sync-report.json`.
+
 Normal synchronization does not read `docs/migrated/` or `sidebars.ts`.
 `sidebars.generated.ts`, document navigation paths, and search breadcrumbs are
 always derived from the current Outline tree. Never put an API token in this

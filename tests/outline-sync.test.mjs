@@ -13,8 +13,10 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import {getContentPaths, getContentSource} from '../scripts/lib/content-source.mjs';
+import {isSearchableDocument} from '../scripts/lib/document-page-type.mjs';
 import {
   assignDocumentRoutes,
+  classifyOutlineDocument,
   collectOutlineAttachmentIds,
   createOutlineClient,
   disableProxyForOutline,
@@ -522,6 +524,39 @@ test('new documents receive a stable urlId route and parent documents link from 
   assert.match(sidebar, /"id": "generated\/0198acbd-0000-0000-0000-000000000001"/);
 });
 
+test('Outline page types depend on meaningful content instead of leaf status', () => {
+  const childRoute = '/docs/outline/child';
+  const directory = classifyOutlineDocument(
+    `## 本章节内容\n\n- [子文档](${childRoute})`,
+    {hasChildren: true, descendantRoutes: [childRoute]},
+  );
+  const hybrid = classifyOutlineDocument(
+    `本章节介绍审批流程的配置方式和使用范围。\n\n- [子文档](${childRoute})`,
+    {hasChildren: true, descendantRoutes: [childRoute]},
+  );
+  const content = classifyOutlineDocument('这是没有子文档的完整操作说明。');
+  const shortList = classifyOutlineDocument('- 开启\n- 关闭');
+  const empty = classifyOutlineDocument('## 暂无内容');
+
+  assert.equal(directory.pageType, 'directory');
+  assert.equal(directory.hasMeaningfulContent, false);
+  assert.equal(directory.contentMarkdown, '');
+  assert.equal(hybrid.pageType, 'hybrid');
+  assert.equal(hybrid.hasMeaningfulContent, true);
+  assert.doesNotMatch(hybrid.contentMarkdown, /子文档/);
+  assert.equal(content.pageType, 'content');
+  assert.equal(shortList.pageType, 'content');
+  assert.equal(empty.pageType, 'empty');
+});
+
+test('directory Outline pages remain searchable while empty pages stay out of search', () => {
+  assert.equal(isSearchableDocument({source: 'outline', page_type: 'directory'}), true);
+  assert.equal(isSearchableDocument({source: 'outline', page_type: 'empty'}), false);
+  assert.equal(isSearchableDocument({source: 'outline', page_type: 'hybrid'}), true);
+  assert.equal(isSearchableDocument({source: 'outline', page_type: 'content'}), true);
+  assert.equal(isSearchableDocument({source: 'legacy'}), true);
+});
+
 test('failed MDX validation leaves the previous generated output intact', async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'outline-output-'));
   t.after(() => rm(root, {recursive: true, force: true}));
@@ -589,6 +624,59 @@ test('successful generation replaces the snapshot without creating local media',
   assert.match(output, /<video controls playsInline preload="metadata"/);
   assert.equal(report.media, 'remote');
   await assert.rejects(access(path.join(root, 'static')));
+});
+
+test('generation turns link-only parents into directory pages with child metadata', async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'outline-directory-'));
+  t.after(() => rm(root, {recursive: true, force: true}));
+  await mkdir(path.join(root, '.tmp'), {recursive: true});
+  const tree = [{
+    id: docIdOne,
+    title: 'Parent',
+    children: [{id: docIdTwo, title: 'Child', children: []}],
+  }];
+  const documents = [
+    {
+      id: docIdOne,
+      urlId: 'parent',
+      title: 'Parent',
+      text: `## 子文档\n\n- [Child](/doc/${docIdTwo})`,
+      parents: [],
+      slug: '/outline/parent',
+      routeSource: 'outline-url-id',
+    },
+    {
+      id: docIdTwo,
+      urlId: 'child',
+      title: 'Child',
+      text: 'This child contains a complete setup guide for administrators.',
+      parents: ['Parent'],
+      slug: '/outline/child',
+      routeSource: 'outline-url-id',
+    },
+  ];
+
+  const report = await generateOutlineOutput({
+    cwd: root,
+    snapshot: {
+      collection: {id: 'collection', name: '售后知识库'},
+      tree,
+      attachments: new Map(),
+    },
+    assignedDocuments: documents,
+    baseUrl,
+  });
+
+  const parentOutput = await readFile(
+    path.join(root, 'docs', 'generated', `${docIdOne}.mdx`),
+    'utf8',
+  );
+  assert.match(parentOutput, /page_type: "directory"/);
+  assert.match(parentOutput, /has_meaningful_content: false/);
+  assert.match(parentOutput, /outline_children: \[/);
+  assert.match(parentOutput, /"url":"\/docs\/outline\/child\/"/);
+  assert.doesNotMatch(parentOutput, /\[Child\]/);
+  assert.deepEqual(report.pageTypes, {content: 1, directory: 1, hybrid: 0, empty: 0});
 });
 
 test('report staging failure preserves the previous generated snapshot', async (t) => {

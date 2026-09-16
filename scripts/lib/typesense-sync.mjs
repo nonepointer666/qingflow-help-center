@@ -12,6 +12,7 @@ export function buildCollectionSchema(collection) {
     fields: [
       {name: 'doc_id', type: 'string', facet: true},
       {name: 'record_type', type: 'string', facet: true},
+      {name: 'page_type', type: 'string', facet: true, optional: true},
       {name: 'title', type: 'string', locale: 'zh'},
       {name: 'document_title', type: 'string', optional: true, locale: 'zh'},
       {name: 'section', type: 'string', facet: true, locale: 'zh'},

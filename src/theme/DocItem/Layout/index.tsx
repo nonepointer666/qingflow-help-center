@@ -1,10 +1,11 @@
 import React, {type ReactNode, useEffect, useRef, useState} from 'react';
 import clsx from 'clsx';
+import Link from '@docusaurus/Link';
 import {useLocation} from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {useWindowSize} from '@docusaurus/theme-common';
 import {useDoc} from '@docusaurus/plugin-content-docs/client';
-import {Check, Copy} from 'lucide-react';
+import {Check, Copy, FileText, FolderOpen} from 'lucide-react';
 import ContentVisibility from '@theme/ContentVisibility';
 import DocBreadcrumbs from '@theme/DocBreadcrumbs';
 import DocItemContent from '@theme/DocItem/Content';
@@ -20,6 +21,12 @@ import {getSearchHighlightTerms} from '../../../utils/search-results.mjs';
 import styles from './styles.module.css';
 
 type CopyState = 'idle' | 'copied' | 'error';
+type OutlineChildPage = {
+  title: string;
+  url: string;
+  description?: string;
+  pageType?: string;
+};
 
 const SEARCH_HIGHLIGHT_HOLD_MS = 2600;
 const SEARCH_HIGHLIGHT_REMOVE_MS = 3600;
@@ -43,6 +50,73 @@ function getTextMatches(value: string, terms: string[]): Array<{start: number; e
   }
 
   return matches;
+}
+
+function getOutlineChildPages(value: unknown): OutlineChildPage[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): OutlineChildPage[] => {
+    if (!item || typeof item !== 'object') return [];
+    const candidate = item as Record<string, unknown>;
+    if (
+      typeof candidate.title !== 'string' ||
+      typeof candidate.url !== 'string' ||
+      !candidate.url.startsWith('/docs/')
+    ) {
+      return [];
+    }
+    return [{
+      title: candidate.title,
+      url: candidate.url,
+      description: typeof candidate.description === 'string' ? candidate.description : undefined,
+      pageType: typeof candidate.pageType === 'string' ? candidate.pageType : undefined,
+    }];
+  });
+}
+
+function OutlinePageNavigation({frontMatter}: {frontMatter: Record<string, unknown>}): ReactNode {
+  if (frontMatter.source !== 'outline') return null;
+  const pageType = String(frontMatter.page_type ?? 'content');
+  const childPages = getOutlineChildPages(frontMatter.outline_children);
+
+  if (childPages.length === 0) {
+    if (pageType !== 'empty') return null;
+    return (
+      <section className={styles.emptyDocument} aria-label="文档状态">
+        <FileText aria-hidden="true" size={19} strokeWidth={1.8} />
+        <p>该页面暂时没有正文内容。</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.childNavigation} aria-labelledby="outline-child-navigation-title">
+      <div className={styles.childNavigationHeading}>
+        <h2 id="outline-child-navigation-title">本章节内容</h2>
+        {pageType === 'directory' ? <p>选择一篇文档继续阅读。</p> : null}
+      </div>
+      <div className={styles.childNavigationList}>
+        {childPages.map((child) => {
+          const ChildIcon = ['directory', 'hybrid'].includes(child.pageType ?? '')
+            ? FolderOpen
+            : FileText;
+          return (
+            <Link className={styles.childNavigationItem} key={child.url} to={child.url}>
+              <ChildIcon
+                className={styles.childNavigationIcon}
+                aria-hidden="true"
+                size={20}
+                strokeWidth={1.8}
+              />
+              <span className={styles.childNavigationCopy}>
+                <strong>{child.title}</strong>
+                {child.description ? <span>{child.description}</span> : null}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function highlightSearchTerms(root: HTMLElement, query: string): HTMLElement[] {
@@ -434,7 +508,7 @@ function DocToolbar() {
 
 export default function DocItemLayout({children}: Props): ReactNode {
   const docTOC = useDocTOC();
-  const {metadata} = useDoc();
+  const {metadata, frontMatter} = useDoc();
   const articleRef = React.useRef<HTMLElement>(null);
 
   useSearchHighlight(articleRef, metadata.id);
@@ -450,6 +524,7 @@ export default function DocItemLayout({children}: Props): ReactNode {
             <DocVersionBadge />
             {docTOC.mobile}
             <DocItemContent>{children}</DocItemContent>
+            <OutlinePageNavigation frontMatter={frontMatter as Record<string, unknown>} />
             <DocItemFooter />
           </article>
           <DocItemPaginator />

@@ -10,6 +10,8 @@
 .docusaurus
 .cache-loader
 /.tmp
+/.playwright-cli
+/output/playwright
 /static/search-records.json
 /static/search-suggestions.json
 /static/raw-docs

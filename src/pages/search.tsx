@@ -40,6 +40,7 @@ type SearchDocument = {
   id?: string;
   doc_id?: string;
   record_type?: 'document' | 'section';
+  page_type?: 'content' | 'directory' | 'hybrid' | 'empty';
   title?: string;
   document_title?: string;
   section?: string;
@@ -242,6 +243,10 @@ function getTotalPages(found: number, perPage: number): number {
 }
 
 function getResultSnippet(result: SearchHit, query: string): ResultSnippet {
+  if (result.document?.page_type === 'directory') {
+    return {text: '目录页', matches: [], source: 'local'};
+  }
+
   const contentHighlight = result.highlights?.find(
     (highlight) => highlight.field === 'content' && highlight.snippet,
   );
@@ -807,7 +812,8 @@ export default function SearchPage(): ReactNode {
                         <Heading as="h2">
                           {renderHighlightedSearchText(sectionTitle ?? '未命名段落', query)}
                         </Heading>
-                        {documentTitle && documentTitle !== sectionTitle ? (
+                        {documentTitle &&
+                        normalizeSearchText(documentTitle) !== normalizeSearchText(sectionTitle) ? (
                           <p className={styles.resultDocumentTitle}>
                             {renderHighlightedSearchText(documentTitle, query)}
                           </p>

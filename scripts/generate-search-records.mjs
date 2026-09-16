@@ -2,6 +2,7 @@ import {mkdir, readFile, readdir, rm, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {loadLocalEnvironment} from './lib/load-env.mjs';
 import {getContentPaths} from './lib/content-source.mjs';
+import {isSearchableDocument} from './lib/document-page-type.mjs';
 import {buildBreadcrumb} from './lib/search-breadcrumb.mjs';
 import {extractSearchSections} from './lib/search-sections.mjs';
 import {buildSearchTokens} from './lib/search-tokenizer.mjs';
@@ -314,6 +315,8 @@ async function main() {
     const {attributes, body} = parseFrontMatter(source);
     const cleanBody = cleanMarkdown(body);
     const title = extractTitle(cleanBody, attributes.title);
+    if (!isSearchableDocument(attributes)) continue;
+    const pageType = String(attributes.page_type ?? 'content');
     const content = normalizeContent(cleanBody);
     const category = extractSection(relativePath, attributes, title);
     const businessPriority = inferBusinessPriority(relativePath, attributes, category);
@@ -347,6 +350,7 @@ async function main() {
       id: docId,
       doc_id: docId,
       record_type: 'document',
+      page_type: pageType,
       title,
       document_title: title,
       section: category,
@@ -382,6 +386,7 @@ async function main() {
         id: `${docId}--section-${sectionIndex + 1}`,
         doc_id: docId,
         record_type: 'section',
+        page_type: pageType,
         title: section.title,
         document_title: title,
         section: section.title,
