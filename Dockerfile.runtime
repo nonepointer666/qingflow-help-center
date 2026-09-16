@@ -13,6 +13,9 @@ LABEL org.opencontainers.image.revision="${BUILD_COMMIT}" \
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY build/ /usr/share/nginx/html/
+# The release script builds under a restrictive umask; the web root must stay
+# world-readable for the unprivileged nginx worker.
+RUN chmod -R a+rX /usr/share/nginx/html
 
 EXPOSE 80
 
