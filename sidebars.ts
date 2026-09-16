@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
                 "id": "migrated/rphk9kdbczxrixk1"
               },
               "items": [
+                "migrated/cn7ky0qxydehb5le",
                 "migrated/iip5qw68k8asha9h",
                 "migrated/wn5gs7ggbnhm0gax",
                 "migrated/uc6hd5qc9a6lzo7o",
