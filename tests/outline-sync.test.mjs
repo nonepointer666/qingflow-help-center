@@ -549,8 +549,8 @@ test('Outline page types depend on meaningful content instead of leaf status', (
   assert.equal(empty.pageType, 'empty');
 });
 
-test('directory and empty Outline pages stay out of search while mixed pages remain', () => {
-  assert.equal(isSearchableDocument({source: 'outline', page_type: 'directory'}), false);
+test('directory Outline pages remain searchable while empty pages stay out of search', () => {
+  assert.equal(isSearchableDocument({source: 'outline', page_type: 'directory'}), true);
   assert.equal(isSearchableDocument({source: 'outline', page_type: 'empty'}), false);
   assert.equal(isSearchableDocument({source: 'outline', page_type: 'hybrid'}), true);
   assert.equal(isSearchableDocument({source: 'outline', page_type: 'content'}), true);

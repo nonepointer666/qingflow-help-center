@@ -8,5 +8,5 @@ export const OUTLINE_PAGE_TYPES = Object.freeze([
 export function isSearchableDocument(attributes = {}) {
   if (attributes.source !== 'outline') return true;
   const pageType = String(attributes.page_type ?? 'content');
-  return pageType === 'content' || pageType === 'hybrid';
+  return pageType !== 'empty';
 }

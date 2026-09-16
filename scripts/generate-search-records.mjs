@@ -316,6 +316,7 @@ async function main() {
     const cleanBody = cleanMarkdown(body);
     const title = extractTitle(cleanBody, attributes.title);
     if (!isSearchableDocument(attributes)) continue;
+    const pageType = String(attributes.page_type ?? 'content');
     const content = normalizeContent(cleanBody);
     const category = extractSection(relativePath, attributes, title);
     const businessPriority = inferBusinessPriority(relativePath, attributes, category);
@@ -349,6 +350,7 @@ async function main() {
       id: docId,
       doc_id: docId,
       record_type: 'document',
+      page_type: pageType,
       title,
       document_title: title,
       section: category,
@@ -384,6 +386,7 @@ async function main() {
         id: `${docId}--section-${sectionIndex + 1}`,
         doc_id: docId,
         record_type: 'section',
+        page_type: pageType,
         title: section.title,
         document_title: title,
         section: section.title,
